@@ -74,7 +74,8 @@ bool keepTail (int round)  //本回合是否生长
 	return false;
 }
 
-int randDire (int okDire)
+//okDire用4个二进制位存储可以走的方向，z是可行的方向数，randDire返回随机一个方向 
+int randDire (int okDire)  
 {
 	int d[4], z = 0;
 	for(int i=0; i<4; ++i, okDire >>= 1)
@@ -83,6 +84,7 @@ int randDire (int okDire)
 	if(z == 0)	return -1;	//无处可逃
 	return d[rand() % z];
 }
+//???
 inline int bitcnt (int x)
 {
 	int cnt = 0;
@@ -96,7 +98,7 @@ struct Point
 {
 	int x, y;
 	Point () {}
-	Point (int _x,int _y)
+	Point (int _x,int _y)//赋值3
 	{
 		x = _x;
 		y = _y;
@@ -125,7 +127,8 @@ public:
 	void born (Point p0)
 	{
 		pos[0] = p0;
-		begin = 0, end = -1;
+		begin = 0, end = -1; 
+		//pos[end+1]...pos[begin]是蛇
 	}
 	Point head () const
 	{

@@ -20,51 +20,50 @@
 #define NUMFOOD 2
 #define NUMNULL 0
 
+using namespace std;
 const int MAXN = 40;
 const int MAX_ROUND = 100;
 const int LENDIR = 4;
 const int inf = 1e4;
-const int map[MAXN][MAXN]; //0:空 1:己方 3:敌方 2:食物
-using namespace std;
 const int dx[4] = {-1,0,1,0};
 const int dy[4] = {0,1,0,-1};
 
-class Point
+struct _Point
 {
     int x, y;
-    Point () {}
-    Point (int _x,int _y)//赋值3
+    _Point () {}
+    _Point (int _x,int _y)//赋值3
     {
         x = _x;
         y = _y;
     }
-    friend bool operator == (const Point &a, const Point &b)
+    friend bool operator == (const _Point &a, const _Point &b)
     {
         return a.x == b.x && a.y == b.y;
     }
-    friend ostream& operator << (ostream& out, const Point &p)
+    friend ostream& operator << (ostream& out, const _Point &p)
     {
         return out << '(' << p.x << ',' << p.y << ')';
     }
 };
 
-Point next (const Point &p, int k)
+_Point next (const _Point &p, int k)
 {
-    return Point(p.x + dx[k], p.y + dy[k]);
+    return _Point(p.x + dx[k], p.y + dy[k]);
 }
 
-class Snake
+struct _Snake
 {
-    Point pos[MAX_ROUND];
+    _Point pos[MAX_ROUND];
     int begin, end, len;
     //pos[end+1]...pos[begin]是蛇
     //round = begin + 1
 public:
-    Point head () const
+    _Point head () const
     {
         return pos[begin];
     }
-    Point tail () const
+    _Point tail () const
     {
         return pos[end + 1];
     }
@@ -73,37 +72,29 @@ public:
         int round = begin + 1;
         pos[begin + 1] = next(pos[begin], k);
         ++begin;
-        if(!keepTail(round))
-            ++end;
+        ++end;
     }
     void withdraw ()
     {
         int lastRound = begin;
         --begin;
-        if(!keepTail(lastRound))
-            --end;
+        --end;
     }
-    void makeLifeMap (int life[MAXN][MAXN]) const
+    friend ostream& operator << (ostream& out, const _Snake &s)
     {
-        int round = begin + 1;
-        for(int t = 1, p = end + 1; p ! =  begin + 1; ++t)
-            if(!keepTail(round + t-1))
-                life[pos[p].x][pos[p].y] = t, ++p;
-    }
-    friend ostream& operator << (ostream& out, const Snake &s)
-    {
-        for(int i = s.begin; i ! =  s.end; --i)
+        for(int i = s.begin; i !=  s.end; --i)
             out << s.pos[i] << ' ';
         return out << endl;
     }
 };
 
-Point food;
+int map[MAXN][MAXN]; //0:空 1:己方 3:敌方 2:食物
+_Point food;
 int mSize;
 bool liv1;
 bool liv2;
-Snake s1;
-Snake s2;
+_Snake s1;
+_Snake s2;
 
 int Init_1(int *tmpData)
 {
@@ -115,15 +106,15 @@ int Init_1(int *tmpData)
         for(int j = 0; j<40; j++)
         {
             map[i][j] = tmpData[40+i*40+j];
-            if      (map[i][j] == NUM1) 
+            if      (map[i][j] == NUM1)
                 {liv1 = true;}
-            else if (map[i][j] == NUM2) 
+            else if (map[i][j] == NUM2)
                 {liv2 = true;}
         }
     }
-    Snake tmp;
-    tmp.tail = tmpData[2000];//len-1
-    tmp.head = tmpData[2002];//0
+    _Snake tmp;
+    tmp.end = tmpData[2000];//len-1
+    tmp.begin = tmpData[2002];//0
     tmp.len = tmpData[2005];
     for(int i = 0; i<76; i++)
     {
@@ -136,15 +127,15 @@ int Init_1(int *tmpData)
     }
     s1.len = tmp.len;
     s1.end = -1;
-    s1.head = tmp.len-1;
+    s1.begin = tmp.len-1;
 
     tmp.end = tmpData[3000];//len-1
     tmp.begin = tmpData[3002];//0
     tmp.len = tmpData[3005];
     for(int i = 0; i<76; i++)
     {
-        tmp.body[i].x = tmpData[3006+2*i];
-        tmp.body[i].y = tmpData[3006+2*i+1];
+        tmp.pos[i].x = tmpData[3006+2*i];
+        tmp.pos[i].y = tmpData[3006+2*i+1];
     }
     for(int i = 0; i<tmp.len; i++)
     {
@@ -152,7 +143,7 @@ int Init_1(int *tmpData)
     }
     s2.len = tmp.len;
     s2.end = -1;
-    s2.head = tmp.len-1;
+    s2.begin = tmp.len-1;
 
     return 0;
 }
@@ -167,15 +158,15 @@ int Init_2(int *tmpData)
         for(int j = 0; j<40; j++)
         {
             map[i][j] = tmpData[40+i*40+j];
-            if      (map[i][j] == NUM1) 
+            if      (map[i][j] == NUM1)
                 {liv2 = true;}
-            else if (map[i][j] == NUM2) 
+            else if (map[i][j] == NUM2)
                 {liv1 = true;}
         }
     }
-    Snake tmp;
-    tmp.tail = tmpData[2000];//len-1
-    tmp.head = tmpData[2002];//0
+    _Snake tmp;
+    tmp.end = tmpData[2000];//len-1
+    tmp.begin = tmpData[2002];//0
     tmp.len = tmpData[2005];
     for(int i = 0; i<76; i++)
     {
@@ -188,15 +179,15 @@ int Init_2(int *tmpData)
     }
     s2.len = tmp.len;
     s2.end = -1;
-    s2.head = tmp.len-1;
+    s2.begin = tmp.len-1;
 
     tmp.end = tmpData[3000];//len-1
     tmp.begin = tmpData[3002];//0
     tmp.len = tmpData[3005];
     for(int i = 0; i<76; i++)
     {
-        tmp.body[i].x = tmpData[3006+2*i];
-        tmp.body[i].y = tmpData[3006+2*i+1];
+        tmp.pos[i].x = tmpData[3006+2*i];
+        tmp.pos[i].y = tmpData[3006+2*i+1];
     }
     for(int i = 0; i<tmp.len; i++)
     {
@@ -204,7 +195,7 @@ int Init_2(int *tmpData)
     }
     s1.len = tmp.len;
     s1.end = -1;
-    s1.head = tmp.len-1;
+    s1.begin = tmp.len-1;
 
     return 0;
 }
@@ -213,12 +204,12 @@ int DLL_EXPORT player_1(int *tmpData)
 {
     Init_1(tmpData);
     //算法部分，由于改写了那个同学的初始化代码，此处算法在player_2函数中一样即可，直接复制粘贴
-    return 0;
+    return 1;
 }
 
 int DLL_EXPORT player_2(int *tmpData)
 {
     Init_2(tmpData);
     //算法部分，由于改写了那个同学的初始化代码，此处算法在player_1函数中一样即可，直接复制粘贴
-    return 0;
+    return 2;
 }
